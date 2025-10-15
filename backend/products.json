@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "name": "White Bow-Tie Pillow",
+    "price": 1500,
+    "description": "Luxurious white pillow with gold accents and a central bow-tie knot.",
+    "image": "bowtie_pillow1.jpg", 
+    "category": "Pillow"
+  },
+  {
+    "id": 2,
+    "name": "Red Monkey Fist Knot Pillow",
+    "price": 2000,
+    "description": "Unique red knot-style pillow for modern decorative touch.",
+    "image": "knotless_pillow1.jpg", 
+    "category": "Pillow"
+  },
+  {
+    "id": 3,
+    "name": "Set of Round Decorative Pillows",
+    "price": 3500,
+    "description": "Four round pillows in various colors (gold, black, white, grey) with gold accents.",
+    "image": "several_round_pillows.jpg", 
+    "category": "Pillow Set"
+  },
+  {
+    "id": 4,
+    "name": "Yellow Lumbar Pillow (Butterfly)",
+    "price": 1800,
+    "description": "Bright yellow lumbar pillow featuring a colorful butterfly splash design.",
+    "image": "lumbar_pillow1.jpg", 
+    "category": "Pillow"
+  },
+  {
+    "id": 5,
+    "name": "Sausage and Round Set (Gold)",
+    "price": 2500,
+    "description": "Two-piece set: a round and a sausage-shaped pillow with intricate gold patterns.",
+    "image": "sausage&round_pillow1.jpg", 
+    "category": "Pillow Set"
+  },
+  {
+    "id": 6,
+    "name": "Orange Square Faith Pillow",
+    "price": 1200,
+    "description": "Vibrant orange square cushion with the 'Living Life in Faith Everyday' quote.",
+    "image": "square_pillow1.jpg", 
+    "category": "Pillow"
+  },
+  {
+    "id": 7,
+    "name": "Succulent Scent Décor Candle",
+    "price": 1100,
+    "description": "Clean, crisp scent in a glass jar, perfect for minimalist and green décor.",
+    "image": "IMG-20250930-WA0129.jpg",
+    "category": "Candle"
+  },
+  {
+    "id": 8,
+    "name": "Romantic Rose Vanilla Candle",
+    "price": 950,
+    "description": "Soft ivory wax with a delicate rose and vanilla scent, ideal for relaxation.",
+    "image": "IMG-20250930-WA0130.jpg",
+    "category": "Candle"
+  },
+  {
+    "id": 9,
+    "name": "Purple & Blue Chevron Candle",
+    "price": 800,
+    "description": "A vibrant, layered candle with a unique chevron pattern and fresh fragrance.",
+    "image": "IMG-20250930-WA0131.jpg",
+    "category": "Candle"
+  },
+  {
+    "id": 10,
+    "name": "Citrus & Lime Jar Candle",
+    "price": 1200,
+    "description": "Large jar candle with a refreshing citrus and lime label. Long-lasting burn.",
+    "image": "IMG-20250930-WA0133.jpg",
+    "category": "Candle"
+  },
+  {
+    "id": 11,
+    "name": "Heart-Shaped Gem Candle Set",
+    "price": 1300,
+    "description": "Decorative set featuring heart-shaped purple and blue wax pieces in a black cup.",
+    "image": "IMG-20250930-WA0134.jpg",
+    "category": "Candle"
+  },
+  {
+    "id": 12,
+    "name": "White & Purple Layered Candle",
+    "price": 850,
+    "description": "Sweet berry scent with a bold two-tone purple and white wax layering.",
+    "image": "IMG-20250930-WA0135.jpg",
+    "category": "Candle"
+  }
+]
