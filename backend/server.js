@@ -6,8 +6,14 @@ const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
+const errorHandler = require("./middleware/errorMiddleware"); // Assuming you have this for clean error handling
+
+// Import all route files
 const userRoutes = require("./routes/userRoutes"); 
 const mpesaRoutes = require("./routes/mpesaRoutes");
+const productRoutes = require("./routes/productRoutes"); 
+const cartRoutes = require("./routes/cartRoutes"); // CRITICAL: Import your Cart routes
+
 
 //  CONFIGURATION 
 const app = express();
@@ -15,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 // Use a placeholder for the live frontend URL; this will be set on Render
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; 
-let products = [];
+let products = []; // Local product cache
 
 //  DATABASE CONNECTION
 mongoose
@@ -32,15 +38,13 @@ const corsOptions = {
   credentials: true, // MUST be true for setting/reading cookies (like JWT) and sending headers
 };
 
-//  MIDDLEWARE 
-app.use(express.json());
-app.use(cors(corsOptions)); // Apply the restricted CORS configuration
-app.use(cookieParser());// Use of cookie-parser middleware
+// --- MIDDLEWARE ---
+app.use(cors(corsOptions));
+app.use(express.json()); // Allows parsing of JSON request body
+app.use(express.urlencoded({ extended: false })); // Allows parsing of URL-encoded data
+app.use(cookieParser()); // Enables cookie parsing
 
-// Serve static images safely
-app.use("/images", express.static(path.join(__dirname, "images")));
-
-//  LOAD LOCAL PRODUCTS 
+//  LOAD PRODUCTS 
 try {
   const dataPath = path.join(__dirname, "products.json");
   const productsJson = fs.readFileSync(dataPath, "utf8");
@@ -51,43 +55,34 @@ try {
   console.error(error.message);
 }
 
-//  ROUTES 
+//  CORRECTED ROUTE MOUNTING SECTION 
+
+
 app.get("/", (req, res) => {
   res.send(" Pillows & Candles Backend is Running...");
 });
 
-// Route to fetch all products for the main page
-app.get("/api/products", (req, res) => {
-    // Since products are loaded locally, we can serve them directly
-    res.json(products);
-});
+// 1. PRODUCT ROUTES (Publicly accessible for fetching products)
+// This links all routes defined in productRoutes.js (e.g., '/', '/:id') to the '/api/products' base path
+app.use("/api/products", productRoutes);
 
-// Route to fetch a single product by ID
-app.get("/api/products/:id", (req, res) => {
-    // Extract the ID from the URL parameters and ensure it's treated as a number
-    const productId = parseInt(req.params.id);
+// 2. USER ROUTES (Registration, Login)
+app.use("/api/users", userRoutes);
 
-    // Find the product in the local array
-    const product = products.find(p => p.id === productId);
+// 3. CART ROUTES (Protected, requires token)
+// This links all cart routes to the '/api/cart' base path
+app.use("/api/cart", cartRoutes);
 
-    if (product) {
-        // If the product is found, return it as JSON
-        res.json(product);
-    } else {
-        // If not found, return a 404 error
-        res.status(404).json({ message: "Product not found" });
-    }
-});
+// 4. MPESA/PAYMENT ROUTES (Protected, requires token)
+app.use("/api/mpesa", mpesaRoutes);
 
 
-//  Link User Routes to the server
-app.use("/api/users", userRoutes); 
+//  END CORRECTED ROUTE MOUNTING SECTION 
 
-//  Link Mpesa Routes to the server
-app.use("/api/mpesa", mpesaRoutes); 
 
+
+// Error Handling Middleware 
+app.use(errorHandler);
 
 //  START SERVER 
-app.listen(PORT, () => {
-  console.log(` Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(` Server started on port ${PORT}`));
