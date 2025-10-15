@@ -8,25 +8,33 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
 const userRoutes = require("./routes/userRoutes"); 
 const mpesaRoutes = require("./routes/mpesaRoutes");
-// Assuming you have a cartRoutes file that defines the cart API
-const cartRoutes = require("./routes/cartRoutes"); 
 
 //  CONFIGURATION 
 const app = express();
+// Use process.env.PORT for dynamic port assignment on platforms like Render
 const PORT = process.env.PORT || 5000;
+// Use a placeholder for the live frontend URL; this will be set on Render
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; 
 let products = [];
 
 //  DATABASE CONNECTION
 mongoose
   
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI) // Uses the MONGO_URI environment variable
   .then(() => console.log(" MongoDB connected"))
   .catch((err) => console.error(" MongoDB connection error:", err));
 
+// --- PRODUCTION-READY CORS CONFIGURATION ---
+const corsOptions = {
+  // Only allow requests from the specific frontend URL (set in Render) or localhost for testing.
+  origin: FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow common HTTP methods
+  credentials: true, // MUST be true for setting/reading cookies (like JWT) and sending headers
+};
+
 //  MIDDLEWARE 
 app.use(express.json());
-// Allow all origins for CORS during development/testing
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors(corsOptions)); // Apply the restricted CORS configuration
 app.use(cookieParser());// Use of cookie-parser middleware
 
 // Serve static images safely
@@ -35,14 +43,9 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 //  LOAD LOCAL PRODUCTS 
 try {
   const dataPath = path.join(__dirname, "products.json");
-  // Check if file exists to prevent hard crash
-  if (fs.existsSync(dataPath)) {
-    const productsJson = fs.readFileSync(dataPath, "utf8");
-    products = JSON.parse(productsJson);
-    console.log(` Loaded ${products.length} products successfully.`);
-  } else {
-    console.error("products.json not found. Product routes will return empty array.");
-  }
+  const productsJson = fs.readFileSync(dataPath, "utf8");
+  products = JSON.parse(productsJson);
+  console.log(` Loaded ${products.length} products successfully.`);
 } catch (error) {
   console.error("Failed to load products.json. Check path or syntax.");
   console.error(error.message);
@@ -53,22 +56,13 @@ app.get("/", (req, res) => {
   res.send(" Pillows & Candles Backend is Running...");
 });
 
-//  Link User Routes to the server
-app.use("/api/users", userRoutes); 
-
-//  Link Mpesa Routes to the server
-app.use("/api/mpesa", mpesaRoutes); 
-
-//  Link Cart Routes to the server
-app.use("/api/cart", cartRoutes); 
-
-// --- NEW ROUTE: Get All Products ---
+// Route to fetch all products for the main page
 app.get("/api/products", (req, res) => {
-    // Returns the entire array of products loaded from the JSON file
-    res.status(200).json(products);
+    // Since products are loaded locally, we can serve them directly
+    res.json(products);
 });
 
-//  EXISTING ROUTE: Get Single Product
+// Route to fetch a single product by ID
 app.get("/api/products/:id", (req, res) => {
     // Extract the ID from the URL parameters and ensure it's treated as a number
     const productId = parseInt(req.params.id);
@@ -77,21 +71,23 @@ app.get("/api/products/:id", (req, res) => {
     const product = products.find(p => p.id === productId);
 
     if (product) {
-        // If the product is found, return it
-        res.status(200).json(product);
+        // If the product is found, return it as JSON
+        res.json(product);
     } else {
-        // If no product matches the ID, return a 404
+        // If not found, return a 404 error
         res.status(404).json({ message: "Product not found" });
     }
 });
 
-// Global Error Handler Middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.statusCode || 500).json({
-    message: err.message || "An unexpected server error occurred.",
-  });
-});
 
-//  START SERVER
-app.listen(PORT, () => console.log(` Pillows & Candles Backend running on port ${PORT}`));
+//  Link User Routes to the server
+app.use("/api/users", userRoutes); 
+
+//  Link Mpesa Routes to the server
+app.use("/api/mpesa", mpesaRoutes); 
+
+
+//  START SERVER 
+app.listen(PORT, () => {
+  console.log(` Server running on port ${PORT}`);
+});
