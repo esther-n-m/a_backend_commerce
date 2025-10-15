@@ -18,7 +18,7 @@ const cartRoutes = require("./routes/cartRoutes");
 //  CONFIGURATION 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; 
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://a-frontend-commerce.vercel.app/"; 
 let products = []; // Local product cache
 
 //  DATABASE CONNECTION
