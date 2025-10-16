@@ -58,6 +58,9 @@ const corsOptions = {
 //  MIDDLEWARE 
 app.use(cors(corsOptions));
 
+// This exposes your 'images' folder at the '/images' public path.
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 //  LOAD PRODUCTS 
 try {
   const dataPath = path.join(__dirname, "products.json");
@@ -74,6 +77,7 @@ try {
 app.get("/", (req, res) => {
   res.send(" Pillows & Candles Backend is Running...");
 });
+
 
 // 1. PRODUCT ROUTES 
 app.use("/api/products", productRoutes);
