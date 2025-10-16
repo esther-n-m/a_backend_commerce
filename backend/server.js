@@ -59,7 +59,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // This exposes your 'images' folder at the '/images' public path.
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use( express.static(path.join(__dirname, 'images')));
 
 //  LOAD PRODUCTS 
 try {
