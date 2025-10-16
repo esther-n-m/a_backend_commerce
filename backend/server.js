@@ -14,32 +14,49 @@ const mpesaRoutes = require("./routes/mpesaRoutes");
 const productRoutes = require("./routes/productRoutes"); 
 const cartRoutes = require("./routes/cartRoutes"); 
 
-
 //  CONFIGURATION 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://a-frontend-commerce.vercel.app"; 
+
+// NEW: Use an array of allowed origins (e.g., comma-separated list in Render ENV)
+// Default to common development and the primary Vercel domain.
+const FRONTEND_URLS = (
+  process.env.FRONTEND_URLS || 
+  "http://localhost:3000,https://a-frontend-commerce.vercel.app" // Add more URLs here if needed
+).split(',').map(s => s.trim());
+
 let products = []; // Local product cache
 
-//  DATABASE CONNECTION
-mongoose
-  
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log(" MongoDB connected"))
-  .catch((err) => console.error(" MongoDB connection error:", err));
+// ... (DATABASE CONNECTION section)
 
-//  PRODUCTION-READY CORS CONFIGURATION 
+// --- PRODUCTION-READY CORS CONFIGURATION (UPDATED) ---
 const corsOptions = {
-  origin: FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true, 
+    // Dynamic origin check to support multiple domains (including Vercel previews)
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
+        if (!origin) return callback(null, true);
+        
+        // 1. Check for an exact match in the allowed list
+        if (FRONTEND_URLS.includes(origin)) {
+            return callback(null, true);
+        }
+
+        // 2. Allow Vercel preview domains using a pattern check
+        // This covers https://a-frontend-commerce-hqr0uzk4c-novas-projects-c6380da0.vercel.app
+        if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+
+        // 3. Block all other origins
+        console.log(`CORS Policy Blocked Origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'), false);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow common HTTP methods
+    credentials: true, // MUST be true for setting/reading cookies
 };
 
 //  MIDDLEWARE 
 app.use(cors(corsOptions));
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: false })); 
-app.use(cookieParser()); 
 
 //  LOAD PRODUCTS 
 try {
