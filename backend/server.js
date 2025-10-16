@@ -61,6 +61,9 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //  MIDDLEWARE 
 app.use(cors(corsOptions));
+app.use(express.json()); // Essential for POST requests (like adding to cart)
+app.use(express.urlencoded({ extended: false })); // Essential for form data
+app.use(cookieParser()); // Enables cookie parsing (used for JWTs)
 
 //  LOAD PRODUCTS 
 try {
