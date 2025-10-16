@@ -58,8 +58,8 @@ const corsOptions = {
 //  MIDDLEWARE 
 app.use(cors(corsOptions));
 
-// This exposes your 'images' folder at the '/images' public path.
-app.use( express.static(path.join(__dirname, 'images')));
+// This exposes your physical 'images' folder at the public path '/images'
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //  LOAD PRODUCTS 
 try {
