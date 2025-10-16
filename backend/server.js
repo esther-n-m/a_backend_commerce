@@ -55,11 +55,12 @@ const corsOptions = {
     credentials: true, // MUST be true for setting/reading cookies
 };
 
+//This exposes your physical 'images' folder at the public path '/images'
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+
 //  MIDDLEWARE 
 app.use(cors(corsOptions));
-
-// This exposes your physical 'images' folder at the public path '/images'
-app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //  LOAD PRODUCTS 
 try {
