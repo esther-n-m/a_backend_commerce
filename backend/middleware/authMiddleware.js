@@ -17,41 +17,36 @@ const asyncHandler = require("express-async-handler"); // Utility for handling a
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  // 1. Check if the Authorization header exists and starts with 'Bearer'
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
-      // Get token from header (format is "Bearer TOKEN")
       token = req.headers.authorization.split(" ")[1];
-
-      // 2. Verify token using the secret key
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // 3. Find the user associated with the token ID
-      // Select('-password') excludes the password field from the returned user object
-      req.user = await User.findById(decoded.id).select("-password");
+      
+      // Select('-password') ensures password hash is not loaded
+      req.user = await User.findById(decoded.id).select("-password"); 
 
       if (!req.user) {
-        res.status(401); // Unauthorized
-        // Throwing an error here is caught by asyncHandler and handled below
+        // Use a generic 401 and let the global error handler pick it up
+        res.status(401); 
         throw new Error("User not found: Invalid token payload"); 
       }
 
-      // 4. Proceed to the next middleware or route handler
-      next();
+      next(); // Proceed if successful
+
     } catch (error) {
-      // Log the specific error and send a general unauthorized message
+      // Catch token failure (expired, invalid signature, etc.)
       console.error("Token Verification Error:", error.message);
-      res.status(401); // Unauthorized
+      res.status(401);
       throw new Error("Not authorized, token failed or expired");
     }
   }
 
-  // If no token is found in the header
+  // If no token exists at all (i.e., header missing or not Bearer)
   if (!token) {
-    res.status(401); // Unauthorized
+    res.status(401);
     throw new Error("Not authorized, no token found");
   }
 });

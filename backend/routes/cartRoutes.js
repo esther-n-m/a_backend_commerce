@@ -6,6 +6,13 @@
 const express = require("express");
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
+const { 
+    getCart, 
+    addItemToCart, 
+    updateCartItemQuantity,
+    removeItemFromCart,    
+    clearCart              
+} = require("../controllers/cartController");
 
 // Core Dependencies
 const { protect } = require("../middleware/authMiddleware");

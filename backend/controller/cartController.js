@@ -84,24 +84,98 @@ const addItemToCart = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Cart updated successfully', cart });
 });
 
+const updateCartItemQuantity = asyncHandler(async (req, res) => {
+    const { itemId, quantity } = req.body; // itemId is the cart item's unique _id (sub-document ID)
+    const newQuantity = parseInt(quantity, 10);
+
+    if (newQuantity < 1 || isNaN(newQuantity)) {
+        res.status(400);
+        throw new Error("Quantity must be at least 1.");
+    }
+
+    const cart = await Cart.findOne({ userId: req.user.id });
+
+    if (!cart) {
+        res.status(404);
+        throw new Error("Cart not found for this user.");
+    }
+
+    // Find the specific item in the items array by its unique _id
+    const item = cart.items.find(item => item.id.toString() === itemId); 
+
+    if (!item) {
+        res.status(404);
+        throw new Error("Item not found in cart.");
+    }
+
+    // Update the quantity
+    item.quantity = newQuantity;
+
+    // Recalculate total
+    cart.total = cart.items.reduce((acc, currentItem) => acc + (currentItem.price * currentItem.quantity), 0);
+
+    const updatedCart = await cart.save();
+
+    res.status(200).json({
+        message: "Cart item quantity updated successfully.",
+        cart: updatedCart,
+    });
+});
+
 // @desc    Clear the entire cart
 // @route   DELETE /api/cart
 // @access  Private
-const clearCart = asyncHandler(async (req, res) => {
-    // Delete the entire cart document for the authenticated user
-    const result = await Cart.deleteOne({ userId: req.user.id });
 
-    if (result.deletedCount === 0) {
-        // Cart was already empty or didn't exist, which is fine for clearing
-        res.status(200).json({ message: 'Cart was already empty or cleared successfully.', items: [], total: 0 });
-        return;
+const removeItemFromCart = asyncHandler(async (req, res) => {
+    const { itemId } = req.params; // This is the unique _id of the cart item
+
+    // Find the cart by user ID
+    const cart = await Cart.findOne({ userId: req.user.id });
+
+    if (!cart) {
+        res.status(404);
+        throw new Error("Cart not found for this user.");
     }
 
-    res.status(200).json({ message: 'Cart cleared successfully.', items: [], total: 0 });
+    // Use Mongoose's .pull() method to remove the sub-document by its _id
+    const originalItemCount = cart.items.length;
+    cart.items.pull({ _id: itemId });
+
+    if (cart.items.length === originalItemCount) {
+        // If length hasn't changed, the item ID was not found
+        res.status(404);
+        throw new Error("Item not found in cart.");
+    }
+
+    // Recalculate and update the total after removal
+    cart.total = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+    const updatedCart = await cart.save();
+
+    res.status(200).json({
+        message: "Item successfully removed from cart.",
+        cart: updatedCart,
+    });
+});
+
+const clearCart = asyncHandler(async (req, res) => {
+    // Find and update the cart to set the items array to empty and total to zero
+    const cart = await Cart.findOneAndUpdate(
+        { userId: req.user.id }, // Use userId as per your model
+        { $set: { items: [], total: 0 } }, // Explicitly set items to empty and total to 0
+        { new: true, runValidators: true } // Return the new document
+    );
+
+    res.status(200).json({ 
+        message: 'Cart cleared successfully.', 
+        cart: { items: [], total: 0 } // Send a clean response
+    });
 });
 
 module.exports = {
     getCart,
     addItemToCart,
     clearCart,
+    updateCartItemQuantity, 
+    removeItemFromCart,
 };
