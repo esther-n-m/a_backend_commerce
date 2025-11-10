@@ -31,7 +31,7 @@ const getCart = asyncHandler(async (req, res) => {
 // @route   POST /api/cart
 // @access  Private
 const addItemToCart = asyncHandler(async (req, res) => {
-    const { productId, quantity, size, scent } = req.body;
+    const { productId, quantity, size, scent , image} = req.body;
 
     // 1. Basic validation and finding product details
     if (!productId || !quantity || quantity < 1) {
