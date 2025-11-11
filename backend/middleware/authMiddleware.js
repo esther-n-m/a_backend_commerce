@@ -27,9 +27,11 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 
   // If no token exists at all (i.e., header missing or not Bearer)
-   if (!token) { res.status(401); 
+   if (!token) { 
+    res.status(401); 
     throw new Error("Not authorized, no token found");
-   } try
+   } 
+   try
     {
        // 2. Verify token using the secret key from .env 
        const decoded = jwt.verify(token, process.env.JWT_SECRET);
