@@ -82,11 +82,17 @@ router.post("/login", asyncHandler(async (req, res) => {
     const token = generateToken(user._id);
 
     // D. Send success response with token (exclude password when sending user data)
-    res.json({ 
-        message: "Login successful", 
-        user: { id: user._id, name: user.name, email: user.email },
-        token 
-    });
+    res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Use secure in production
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+});
+
+  // Send the user data without the token in the body
+  res.json({
+      message: "Login successful",
+      user: { id: user._id, name: user.name, email: user.email }
+  });
 }));
 
 

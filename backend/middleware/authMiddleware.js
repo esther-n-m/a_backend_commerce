@@ -17,38 +17,37 @@ const asyncHandler = require("express-async-handler"); // Utility for handling a
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Select('-password') ensures password hash is not loaded
-      req.user = await User.findById(decoded.id).select("-password"); 
-
-      if (!req.user) {
-        // Use a generic 401 and let the global error handler pick it up
-        res.status(401); 
-        throw new Error("User not found: Invalid token payload"); 
-      }
-
-      next(); // Proceed if successful
-
-    } catch (error) {
-      // Catch token failure (expired, invalid signature, etc.)
-      console.error("Token Verification Error:", error.message);
-      res.status(401);
-      throw new Error("Not authorized, token failed or expired");
+  // 1. Check for the token in the HttpOnly Cookie (NEW)
+    if (req.cookies.token) {
+        token = req.cookies.token;
+    } 
+    // 2. Fallback: Check the Authorization header (Existing Bearer token logic)
+    else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
     }
-  }
 
   // If no token exists at all (i.e., header missing or not Bearer)
-  if (!token) {
-    res.status(401);
+   if (!token) { res.status(401); 
     throw new Error("Not authorized, no token found");
-  }
+   } try
+    {
+       // 2. Verify token using the secret key from .env 
+       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // 3. Find user by ID embedded in the token payload 
+        req.user = await User.findById(decoded.id).select("-password"); 
+        if (!req.user) 
+          {
+             res.status(401); 
+          throw new Error("User not found: Invalid token payload"); 
+        } 
+        next(); 
+          // 4. Proceed to the next middleware or route handler 
+          } 
+          catch (error) { 
+            // Catch token failure (expired, invalid signature, etc.) 
+            console.error("Token Verification Error:", error.message); 
+            res.status(401); 
+            throw new Error("Not authorized, token failed or expired"); }
 });
 
 module.exports = { protect };

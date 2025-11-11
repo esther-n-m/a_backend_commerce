@@ -45,7 +45,7 @@ const cartItemSchema = new mongoose.Schema({
 // --- 2. Define the Main Cart Schema ---
 const cartSchema = new mongoose.Schema({
   // Link the cart to a specific user (critical for an e-commerce application)
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',        // Reference the 'User' model
     required: true,
