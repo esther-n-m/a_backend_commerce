@@ -1,144 +1,169 @@
-const asyncHandler = require('express-async-handler');
-const Cart = require('../models/Cart'); // Assuming the Cart model is one directory up
-const products = require('../../products.json'); // Used to confirm product details
+// controllers/cartController.js (OVERWRITE THIS FILE)
 
-/**
- * Helper function to find a product in the local JSON data.
- * @param {number} productId The ID of the product.
- * @returns {object|undefined} The product object or undefined.
+/*
+ * Cart Controller: UPDATED to use Mongoose .populate() and the Product Model.
+ * Removed dependency on products.json and the getProductDetails helper.
  */
-const getProductDetails = (productId) => {
-    return products.find(p => p.id === productId);
+const asyncHandler = require('express-async-handler');
+const Cart = require('../models/Cart'); 
+const Product = require('../models/Product'); // Import the Product Model
+
+// Helper function to calculate cart total (stays the same)
+const calculateTotal = (items) => {
+    return items.reduce((acc, item) => acc + (item.productId.price * item.quantity), 0);
 };
 
 // @desc    Get user's cart
 // @route   GET /api/cart
-// @access  Private (Requires JWT via protect middleware)
+// @access  Private 
 const getCart = asyncHandler(async (req, res) => {
-    // req.user is set by the protect middleware in authMiddleware.js
-    const cart = await Cart.findOne({ userId: req.user.id });
+    // Use .populate('items.productId') to fetch all product details 
+    // and replace the productId with the full Product document.
+    let cart = await Cart.findOne({ user: req.user.id })
+        .populate({
+            path: 'items.productId',
+            model: 'Product', // Ensure this matches the model name in Product.js
+            select: 'name price image category', // Only select the fields needed for the cart
+        });
 
-    if (cart) {
-        // Return the cart found in the database
-        res.status(200).json(cart);
-    } else {
-        // If no cart exists, return an empty cart structure
-        res.status(200).json({ userId: req.user.id, items: [], total: 0 });
+    if (!cart) {
+        // If no cart exists, create a new one to ensure the user always has a cart document
+        cart = await Cart.create({ user: req.user.id, items: [], total: 0 });
     }
+
+    // Since items are now populated, they have 'productId.price' and 'productId.name'
+    // Recalculate total to ensure accuracy based on current product prices
+    cart.total = calculateTotal(cart.items);
+    await cart.save(); // Save the recalculation (optional, but good practice)
+
+    res.status(200).json(cart);
 });
+
 
 // @desc    Add or update an item in the cart
 // @route   POST /api/cart
 // @access  Private
 const addItemToCart = asyncHandler(async (req, res) => {
-    const { productId, quantity, size, scent , image} = req.body;
-
-    // 1. Basic validation and finding product details
-    if (!productId || !quantity || quantity < 1) {
-        res.status(400);
-        throw new Error('Product ID and a valid quantity (>= 1) are required.');
-    }
-    const productData = getProductDetails(productId);
-    if (!productData) {
+    // Only productId, quantity, size, and scent come from the request
+    const { productId, quantity, size, scent } = req.body;
+    
+    // 1. Fetch Product details from the database to ensure price and name are correct
+    const product = await Product.findById(productId);
+    if (!product) {
         res.status(404);
-        throw new Error('Product not found with that ID.');
+        throw new Error("Product not found or invalid ID.");
     }
-
-    // 2. Determine unique identifier for the item (product ID + options)
-    // This is crucial for products with options like size/scent.
-    const uniqueItemKey = `${productId}-${size || 'none'}-${scent || 'none'}`;
-
-    // 3. Find or create the user's cart
-    let cart = await Cart.findOne({ userId: req.user.id });
+    
+    let cart = await Cart.findOne({ user: req.user.id });
 
     if (!cart) {
-        // Create a new cart if one doesn't exist
-        cart = await Cart.create({ userId: req.user.id, items: [] });
+        // If cart doesn't exist, create it
+        cart = await Cart.create({ user: req.user.id, items: [], total: 0 });
     }
 
-    // 4. Check if item already exists in the cart (by its unique key)
-    let itemIndex = cart.items.findIndex(
-        item => `${item.productId}-${item.size || 'none'}-${item.scent || 'none'}` === uniqueItemKey
+    const itemIndex = cart.items.findIndex(item => 
+        item.productId.equals(productId) && item.size === size && item.scent === scent
     );
 
     if (itemIndex > -1) {
-        // Item exists: update quantity
-        cart.items[itemIndex].quantity = quantity;
+        // Item found: Update quantity
+        cart.items[itemIndex].quantity += quantity;
     } else {
-        // Item does not exist: add a new item
-        cart.items.push({
-            productId: productData.id,
-            name: productData.name,
-            price: productData.price,
-            quantity: quantity,
+        // Item not found: Add new item. 
+        // Note: We only store productId (ObjectId), quantity, size, and scent. 
+        // Name and price will be fetched via .populate() in getCart.
+        const newItem = {
+            productId: product._id,
+            quantity,
             size: size || null,
             scent: scent || null,
-        });
+        };
+        cart.items.push(newItem);
     }
-
-    // 5. Recalculate total (This should be done using a pre-save hook on the Cart model in a robust system)
-    cart.total = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     
-    // 6. Save the updated cart
-    await cart.save();
-    res.status(200).json({ message: 'Cart updated successfully', cart });
+    // Recalculate total (Note: This total calc is complex without population, 
+    // so it's best handled in getCart or by the frontend for simple displays. 
+    // For now, we set a temporary total.)
+    // A robust solution here would involve a pre-save hook for calculating the total.
+    // For now, we'll rely on the frontend or the logic in getCart for the correct total.
+    
+    const updatedCart = await cart.save();
+
+    // Re-populate the cart to return the full, correct product data
+    const populatedCart = await updatedCart.populate({
+        path: 'items.productId',
+        model: 'Product',
+        select: 'name price image category',
+    });
+    
+    // Final total calculation before sending response
+    populatedCart.total = calculateTotal(populatedCart.items);
+
+    res.status(200).json(populatedCart);
 });
 
-const updateCartItemQuantity = asyncHandler(async (req, res) => {
-    const { itemId, quantity } = req.body; // itemId is the cart item's unique _id (sub-document ID)
-    const newQuantity = parseInt(quantity, 10);
 
-    if (newQuantity < 1 || isNaN(newQuantity)) {
+// @desc    Update an item's quantity in the cart
+// @route   PUT /api/cart/update/:itemId
+// @access  Private
+const updateCartItemQuantity = asyncHandler(async (req, res) => {
+    const { itemId } = req.params; // Mongoose _id of the cart item (sub-document)
+    const { quantity } = req.body;
+
+    if (isNaN(quantity) || quantity < 1) {
         res.status(400);
-        throw new Error("Quantity must be at least 1.");
+        throw new Error("Quantity must be a positive number.");
     }
 
-    const cart = await Cart.findOne({ userId: req.user.id });
-
+    const cart = await Cart.findOne({ user: req.user.id });
     if (!cart) {
         res.status(404);
         throw new Error("Cart not found for this user.");
     }
 
-    // Find the specific item in the items array by its unique _id
-    const item = cart.items.find(item => item.id.toString() === itemId); 
+    const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
 
-    if (!item) {
+    if (itemIndex === -1) {
         res.status(404);
         throw new Error("Item not found in cart.");
     }
 
     // Update the quantity
-    item.quantity = newQuantity;
+    cart.items[itemIndex].quantity = quantity;
 
-    // Recalculate total
-    cart.total = cart.items.reduce((acc, currentItem) => acc + (currentItem.price * currentItem.quantity), 0);
-
+    // Save and re-populate (similar to addItemToCart)
     const updatedCart = await cart.save();
+    
+    const populatedCart = await updatedCart.populate({
+        path: 'items.productId',
+        model: 'Product',
+        select: 'name price image category',
+    });
+    
+    populatedCart.total = calculateTotal(populatedCart.items);
 
     res.status(200).json({
-        message: "Cart item quantity updated successfully.",
-        cart: updatedCart,
+        message: "Cart item quantity updated.",
+        cart: populatedCart,
     });
 });
 
-// @desc    Clear the entire cart
-// @route   DELETE /api/cart
+
+// @desc    Remove an item entirely from the cart
+// @route   DELETE /api/cart/remove/:itemId
 // @access  Private
-
 const removeItemFromCart = asyncHandler(async (req, res) => {
-    const { itemId } = req.params; // This is the unique _id of the cart item
+    const { itemId } = req.params; 
 
-    // Find the cart by user ID
-    const cart = await Cart.findOne({ userId: req.user.id });
+    const cart = await Cart.findOne({ user: req.user.id });
 
     if (!cart) {
         res.status(404);
         throw new Error("Cart not found for this user.");
     }
 
-    // Use Mongoose's .pull() method to remove the sub-document by its _id
     const originalItemCount = cart.items.length;
+    // Use Mongoose's .pull() method to remove the sub-document by its _id
     cart.items.pull({ _id: itemId });
 
     if (cart.items.length === originalItemCount) {
@@ -147,35 +172,45 @@ const removeItemFromCart = asyncHandler(async (req, res) => {
         throw new Error("Item not found in cart.");
     }
 
-    // Recalculate and update the total after removal
-    cart.total = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
+    // Save and re-populate
     const updatedCart = await cart.save();
+    
+    const populatedCart = await updatedCart.populate({
+        path: 'items.productId',
+        model: 'Product',
+        select: 'name price image category',
+    });
+
+    populatedCart.total = calculateTotal(populatedCart.items);
 
     res.status(200).json({
         message: "Item successfully removed from cart.",
-        cart: updatedCart,
+        cart: populatedCart,
     });
 });
 
+// @desc Remove all items from the cart
+// @route DELETE /api/cart/clear
+// @access Private
 const clearCart = asyncHandler(async (req, res) => {
     // Find and update the cart to set the items array to empty and total to zero
     const cart = await Cart.findOneAndUpdate(
-        { userId: req.user.id }, // Use userId as per your model
-        { $set: { items: [], total: 0 } }, // Explicitly set items to empty and total to 0
-        { new: true, runValidators: true } // Return the new document
+        { user: req.user.id }, 
+        { $set: { items: [], total: 0 } }, 
+        { new: true, runValidators: true } 
     );
 
-    res.status(200).json({ 
-        message: 'Cart cleared successfully.', 
-        cart: { items: [], total: 0 } // Send a clean response
+    res.status(200).json({
+        message: "Cart successfully cleared.",
+        cart,
     });
 });
+
 
 module.exports = {
     getCart,
     addItemToCart,
-    clearCart,
-    updateCartItemQuantity, 
+    updateCartItemQuantity,
     removeItemFromCart,
+    clearCart,
 };

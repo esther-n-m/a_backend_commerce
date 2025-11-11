@@ -3,22 +3,21 @@
  Defines the structure for a shopping cart associated with a user.
  Each cart document stores an array of items (products) with their quantity and selected options.
  */
+// models/Cart.js (OVERWRITE THIS FILE)
+
+/*
+ Cart Model
+ UPDATED: productId now references the Product Model (ObjectId).
+ Removed: name, price - these should be populated from the Product Model.
+*/
 const mongoose = require("mongoose");
 
 // --- 1. Define the Cart Item Sub-Schema ---
-// This schema describes an individual product entry within the cart's 'items' array.
 const cartItemSchema = new mongoose.Schema({
-  // The 'id' from the products.json file (which is a number)
+  // **CRITICAL CHANGE**: The 'id' now references the Product document's _id
   productId: { 
-    type: Number, 
-    required: true 
-  },
-  name: { 
-    type: String, 
-    required: true 
-  },
-  price: { 
-    type: Number, 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Product', 
     required: true 
   },
   quantity: {
@@ -27,7 +26,7 @@ const cartItemSchema = new mongoose.Schema({
     min: [1, 'Quantity must be at least 1'],
     default: 1
   },
-  // Options (e.g., for products that require a specific size or scent)
+  // Options remain here as they are specific to the cart item
   size: { 
     type: String, 
     default: null 
@@ -37,29 +36,27 @@ const cartItemSchema = new mongoose.Schema({
     default: null 
   },
 }, { 
-  // Disable automatic _id creation for sub-documents to keep the array cleaner
   _id: false 
 });
 
 
 // --- 2. Define the Main Cart Schema ---
 const cartSchema = new mongoose.Schema({
-  // Link the cart to a specific user (critical for an e-commerce application)
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',        // Reference the 'User' model
+    ref: 'User',        
     required: true,
-    unique: true,       // Ensures one cart per user (a single active cart)
-    index: true         // Index for fast lookups by user ID
+    unique: true,       
   },
-  
-  // The array of products in the cart, using the sub-schema defined above
-  items: [cartItemSchema],
-
-}, {
-  // Automatically manage 'createdAt' and 'updatedAt' fields
-  timestamps: true
+  items: [cartItemSchema], // Array of cart items
+  total: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+}, { 
+  timestamps: true 
 });
 
-// --- 3. Export the Model ---
-module.exports = mongoose.model("Cart", cartSchema);
+const Cart = mongoose.model("Cart", cartSchema);
+module.exports = Cart;

@@ -1,12 +1,14 @@
+
+
 //  REQUIRED MODULES 
-require("dotenv").config(); //  Load environment variables first!
+require("dotenv").config(); // Load environment variables first!
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs");
-const path = require("path");
+// REMOVED: const fs = require("fs"); 
+// REMOVED: const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
-// const errorHandler = require("./middleware/errorMiddleware"); 
+// const errorHandler = require("./middleware/errorMiddleware"); // Assuming this is defined/imported elsewhere
 
 // Import all route files
 const userRoutes = require("./routes/userRoutes"); 
@@ -18,54 +20,42 @@ const cartRoutes = require("./routes/cartRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// NEW: Use an array of allowed origins (e.g., comma-separated list in Render ENV)
-// Default to common development and the primary Vercel domain.
+// NEW: Use an array of allowed origins
 const FRONTEND_URLS = (
   process.env.FRONTEND_URLS || 
-  "http://localhost:3000,https://a-frontend-commerce.vercel.app" // Add more URLs here if needed
+  "http://localhost:3000,https://a-frontend-commerce.vercel.app" 
 ).split(',').map(s => s.trim());
 
-let products = []; // Local product cache
+// REMOVED: let products = []; // Local product cache is no longer needed
 
-// ... (DATABASE CONNECTION section)
+// ... (DATABASE CONNECTION section - Assume this connects to MongoDB)
 
 // --- PRODUCTION-READY CORS CONFIGURATION (UPDATED) ---
 const corsOptions = {
-    // Dynamic origin check to support multiple domains (including Vercel previews)
+    // Dynamic origin check to support multiple domains
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
-        if (!origin) return callback(null, true);
-        
-        // 1. Check for an exact match in the allowed list
-        if (FRONTEND_URLS.includes(origin)) {
-            return callback(null, true);
+        // Allow requests with no origin (like mobile apps, curl) and listed origins
+        if (!origin || FRONTEND_URLS.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
         }
-
-        // 2. Allow Vercel preview domains using a pattern check
-        // This covers https://a-frontend-commerce-hqr0uzk4c-novas-projects-c6380da0.vercel.app
-        if (origin.endsWith('.vercel.app')) {
-            return callback(null, true);
-        }
-
-        // 3. Block all other origins
-        console.log(`CORS Policy Blocked Origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow common HTTP methods
-    credentials: true, // MUST be true for setting/reading cookies
+    // CRITICAL: Allows cookies/credentials to be sent (needed for HttpOnly cookie)
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-//This exposes your physical 'images' folder at the public path '/images'
-app.use('/images', express.static(path.join(__dirname, 'images')));
-
-
-//  MIDDLEWARE 
+// --- MIDDLEWARE ---
 app.use(cors(corsOptions));
-app.use(express.json()); // Essential for POST requests (like adding to cart)
-app.use(express.urlencoded({ extended: false })); // Essential for form data
-app.use(cookieParser()); // Enables cookie parsing (used for JWTs)
+app.use(express.json()); // Body parser for raw JSON
+app.use(express.urlencoded({ extended: false })); // Body parser for form data
+app.use(cookieParser()); // Cookie parser for accessing req.cookies.token
 
-//  LOAD PRODUCTS 
+
+// REMOVED: Local product file loading logic
+/*
 try {
   const dataPath = path.join(__dirname, "products.json");
   const productsJson = fs.readFileSync(dataPath, "utf8");
@@ -75,6 +65,7 @@ try {
   console.error("Failed to load products.json. Check path or syntax.");
   console.error(error.message);
 }
+*/
 
 
 //ROUTE MOUNTING SECTION 
@@ -96,7 +87,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 
 //  ERROR HANDLING MIDDLEWARE 
-// This function catches all errors from routes and other middleware.
+// Assuming the error handler is correctly defined or imported
 const errorHandler = (err, req, res, next) => {
     // If the status code is still 200 (OK), change it to 500 (Server Error)
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
@@ -105,14 +96,22 @@ const errorHandler = (err, req, res, next) => {
     // Send the error response
     res.json({
         message: err.message,
-        // Only show stack trace if not in production
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+        stack: process.env.NODE_ENV === "production" ? null : err.stack,
     });
 };
-
-// Apply the error handler middleware (must be the last app.use)
 app.use(errorHandler);
 
 
-//  START SERVER 
-app.listen(PORT, () => console.log(` Server started on port ${PORT}`));
+// Server Listener
+const startServer = async () => {
+    try {
+        // Await Mongoose connection here (assuming this part is already in your file)
+        // await mongoose.connect(process.env.MONGO_URI);
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    } catch (error) {
+        console.error(`MongoDB Connection Error: ${error.message}`);
+        process.exit(1);
+    }
+};
+
+startServer();

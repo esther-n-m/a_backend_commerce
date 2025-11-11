@@ -3,44 +3,50 @@
  * Defines public endpoints for fetching all products and individual product details.
  * It uses the 'productUtils' module to access the data from products.json.
  */
+// routes/productRoutes.js (OVERWRITE THIS FILE)
+
+/*
+ * Product Routes: Now queries the MongoDB 'Product' model directly.
+ */
 const express = require("express");
 const router = express.Router();
-// Import the utility functions to access the local product data
-const { getProducts, getProductById } = require("../utils/productUtils");
+const asyncHandler = require("express-async-handler"); // Use this for all async route handlers
+const Product = require("../models/Product"); // Import the new Mongoose Product Model
 
 /**
  * @route GET /api/products
- * @desc Get all products
+ * @desc Get all products from MongoDB
  * @access Public
  */
-router.get("/", (req, res) => {
-  const products = getProducts();
-  if (products.length > 0) {
-    // Successfully loaded and sending all products
+router.get("/", asyncHandler(async (req, res) => {
+  // Simple query to fetch all products from the database
+  const products = await Product.find({});
+
+  if (products && products.length > 0) {
     res.json(products);
   } else {
-    // If the utility failed to load products, return a 500 error
-    res.status(500).json({ message: "Product data is unavailable. Check products.json file." });
+    // Return 200 with an empty array if the database has no products yet (e.g., before seeding)
+    res.json([]); 
   }
-});
+}));
 
 /**
  * @route GET /api/products/:id
- * @desc Get a single product by ID
+ * @desc Get a single product by MongoDB _id
  * @access Public
  */
-router.get("/:id", (req, res) => {
-  // Use req.params.id to get the ID from the URL (e.g., /api/products/1)
+router.get("/:id", asyncHandler(async (req, res) => {
   const productId = req.params.id;
-  const product = getProductById(productId);
+  
+  // Find a product by its MongoDB ObjectId
+  const product = await Product.findById(productId);
 
   if (product) {
-    // Product found
     res.json(product);
   } else {
-    // Product not found with the given ID
-    res.status(404).json({ message: `Product with ID ${productId} not found.` });
+    res.status(404);
+    throw new Error("Product not found with that ID.");
   }
-});
+}));
 
 module.exports = router;
