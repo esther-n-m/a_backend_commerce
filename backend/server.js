@@ -1,11 +1,7 @@
 
-
-//  REQUIRED MODULES 
 require("dotenv").config(); // Load environment variables first!
 const express = require("express");
 const cors = require("cors");
-// REMOVED: const fs = require("fs"); 
-// REMOVED: const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
 // const errorHandler = require("./middleware/errorMiddleware"); // Assuming this is defined/imported elsewhere
@@ -52,6 +48,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Body parser for raw JSON
 app.use(express.urlencoded({ extended: false })); // Body parser for form data
 app.use(cookieParser()); // Cookie parser for accessing req.cookies.token
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
 // REMOVED: Local product file loading logic
