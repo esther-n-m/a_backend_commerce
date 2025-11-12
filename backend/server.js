@@ -99,16 +99,34 @@ const errorHandler = (err, req, res, next) => {
 app.use(errorHandler);
 
 
+const connectDB = async () => {
+    try {
+        // git  CRITICAL FIX: Add the mongoose.connect call here
+        const conn = await mongoose.connect(process.env.MONGO_URI);
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`MongoDB Connection Error: ${error.message}`);
+        // Exit process with failure
+        process.exit(1);
+    }
+};
+
+
 // Server Listener
 const startServer = async () => {
     try {
-        // Await Mongoose connection here (assuming this part is already in your file)
-        // await mongoose.connect(process.env.MONGO_URI);
+        // 1. AWAIT the successful database connection before starting the server
+        await connectDB(); 
+
+        // 2. Start the Express server
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     } catch (error) {
-        console.error(`MongoDB Connection Error: ${error.message}`);
+        // If connectDB fails, it already handles exiting the process (exit(1))
+        // This catch block is mostly for catastrophic server start failures now
+        console.error(`Server Startup Error: ${error.message}`);
         process.exit(1);
     }
 };
 
 startServer();
+
