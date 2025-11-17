@@ -59,10 +59,21 @@ const FRONTEND_URLS = (
 const corsOptions = {
     // Dynamic origin check to support multiple domains
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl) and listed origins
-        if (!origin || FRONTEND_URLS.includes(origin)) {
+        
+        // Check if the origin is explicitly allowed
+        const isAllowed = FRONTEND_URLS.includes(origin);
+
+        if (isAllowed) {
+            //  Echo back the allowed origin string. 
+            // This is required when credentials: true is set.
+            callback(null, origin); 
+            
+        } else if (!origin) {
+            // Allow requests with no origin (e.g., Postman, server-to-server)
             callback(null, true);
+            
         } else {
+            // Block all other origins
             callback(new Error('Not allowed by CORS'));
         }
     },
