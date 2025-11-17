@@ -88,7 +88,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Body parser for raw JSON
 app.use(express.urlencoded({ extended: false })); // Body parser for form data
 app.use(cookieParser()); // Cookie parser for accessing req.cookies.token
-app.use('/images', express.static(path.join(process.cwd(), 'backend', 'images')));
+app.use('/images', express.static('./backend/images'));
 
 // REMOVED: Local product file loading logic
 /*
