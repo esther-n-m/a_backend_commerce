@@ -1,0 +1,138 @@
+[
+  {
+    "name": "White Bow-Tie Pillow",
+    "price": 13.85,
+    "description": "A set of two soft white pillows tied in a bow, featuring a subtle decorative pattern. Elegant and classic.",
+    "image": "bow-tie-pillow.jpg",
+    "category": "Pillow",
+    "stockCount": 15,
+    "options": {
+      "size": ["Small", "Medium"],
+      "material": ["Cotton", "Linen"]
+    }
+  },
+  {
+    "name": "Red Monkey Fist Knot",
+    "price": 21.54,
+    "description": "A large, tightly woven red nautical knot used as a decorative object or paperweight, adding a pop of color.",
+    "image": "monkey-fist.jpg",
+    "category": "Decor",
+    "stockCount": 8,
+    "options": {
+      "color": ["Red", "Burgundy"]
+    }
+  },
+  {
+    "name": "Set of Round Decorative Pillows",
+    "price": 25.38,
+    "description": "A set of round, textured pillows in varying colors (gray, yellow, black) for a modern, eclectic look.",
+    "image": "round-pillows.jpg",
+    "category": "Pillow",
+    "stockCount": 20,
+    "options": {
+      "set": ["3-Piece", "5-Piece"]
+    }
+  },
+  {
+    "name": "Yellow Lumbar Pillow (Butterfly)",
+    "price": 13.85,
+    "description": "A bright yellow lumbar pillow featuring a detailed butterfly design, perfect for back support and vibrant decor.",
+    "image": "butterfly-pillow.jpg",
+    "category": "Pillow",
+    "stockCount": 12,
+    "options": {
+      "size": ["Standard", "Large"],
+      "color": ["Yellow", "Gold"]
+    }
+  },
+  {
+    "name": "Sausage and Round Set (Gold)",
+    "price": 17.69,
+    "description": "A coordinated set of gold-toned decorative pillows (one cylindrical, one round) with textural patterns.",
+    "image": "gold-pillow-set.jpg",
+    "category": "Pillow",
+    "stockCount": 10,
+    "options": {
+      "size": ["Small", "Medium"]
+    }
+  },
+  {
+    "name": "Orange Square Faith Pillow",
+    "price": 10.00,
+    "description": "A square orange pillow with bold white text reading 'LIVING IN FAITH EVERYDAY'.",
+    "image": "faith-pillow.jpg",
+    "category": "Pillow",
+    "stockCount": 5,
+    "options": {
+      "color": ["Orange", "Terracotta"]
+    }
+  },
+  {
+    "name": "Succulent Scent Decor Candle",
+    "price": 10.00,
+    "description": "A scented candle in a ceramic pot, featuring a green succulent plant theme for a natural, fresh look.",
+    "image": "succulent-candle.jpg",
+    "category": "Candle",
+    "stockCount": 18,
+    "options": {
+      "scent": ["Cactus Flower", "Garden Mint"]
+    }
+  },
+  {
+    "name": "Romantic Rose Vanilla Candle",
+    "price": 7.31,
+    "description": "A simple, white pillar candle with a sweet and delicate rose and vanilla aroma for a calming atmosphere.",
+    "image": "rose-vanilla-candle.jpg",
+    "category": "Candle",
+    "stockCount": 25,
+    "options": {
+      "size": ["Small", "Medium", "Large"]
+    }
+  },
+  {
+    "name": "Purple & Blue Chevron Candle",
+    "price": 6.15,
+    "description": "A small glass jar candle with vibrant purple and blue chevron layers and a bright floral scent.",
+    "image": "chevron-candle.jpg",
+    "category": "Candle",
+    "stockCount": 30,
+    "options": {
+      "scent": ["Sweet Berry", "Tropical"]
+    }
+  },
+  {
+    "name": "Citrus & Lime Jar Candle",
+    "price": 10.00,
+    "description": "A brown jar candle with a strong, zesty citrus and lime fragrance to refresh any kitchen or living area.",
+    "image": "citrus-jar-candle.jpg",
+    "category": "Candle",
+    "stockCount": 22,
+    "options": {
+      "scent": ["Lime", "Lemon Verbena"]
+    }
+  },
+  {
+    "name": "Heart-Shaped Gem Candle Set",
+    "price": 10.00,
+    "description": "A set of small, colorful heart-shaped candles resembling gems, ideal for bath time or small decorative accents.",
+    "image": "gem-candle-set.jpg",
+    "category": "Candle",
+    "stockCount": 14,
+    "options": {
+      "set": ["6-Pack", "12-Pack"],
+      "color": ["Mixed", "Pastel"]
+    }
+  },
+  {
+    "name": "White & Purple Layered Candle",
+    "price": 7.31,
+    "description": "A white pillar candle with a bright purple outer layer, offering a strong, clean scent.",
+    "image": "purple-layered.jpg",
+    "category": "Candle",
+    "stockCount": 9,
+    "options": {
+      "scent": ["Floral Bloom", "Powder"],
+      "size": ["Medium", "Large"]
+    }
+  }
+]

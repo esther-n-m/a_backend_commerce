@@ -26,6 +26,12 @@ const ProductSchema = new mongoose.Schema({
         type: String, // Storing the image filename/URL
         default: 'placeholder.jpg',
     },
+
+    options: {
+        type: Object, // Stores key-value pairs like { size: ['Small', 'Large'], color: ['Red'] }
+        default: {} // Ensure it defaults to an empty object
+    },
+
     category: {
         type: String,
         required: [true, "Product category is required"],

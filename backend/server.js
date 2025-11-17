@@ -6,6 +6,33 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
 // const errorHandler = require("./middleware/errorMiddleware"); // Assuming this is defined/imported elsewhere
 
+
+const Product = require("./models/Product"); // Adjust path if needed
+const productsData = require('./products.json');
+
+// Function to run the product import
+const importData = async () => {
+    try {
+        // Check if the products collection is already populated
+        const productCount = await Product.countDocuments();
+        if (productCount > 0) {
+             console.log(`Products collection already has ${productCount} items. Skipping initial import.`);
+             return; // Exit if data is already present
+        }
+
+        // Delete existing data (optional, but good for clean start)
+        await Product.deleteMany({}); 
+
+        // Insert all products from the JSON file
+        await Product.insertMany(productsData); 
+
+        console.log(' Data Imported: Products collection created and populated.');
+
+    } catch (error) {
+        console.error(' Error during data import:', error.message);
+    }
+};
+
 // Import all route files
 const userRoutes = require("./routes/userRoutes"); 
 const mpesaRoutes = require("./routes/mpesaRoutes");
@@ -15,6 +42,8 @@ const cartRoutes = require("./routes/cartRoutes");
 //  CONFIGURATION 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+
 
 // NEW: Use an array of allowed origins
 const FRONTEND_URLS = (
@@ -117,6 +146,8 @@ const startServer = async () => {
     try {
         // 1. AWAIT the successful database connection before starting the server
         await connectDB(); 
+
+        await importData();
 
         // 2. Start the Express server
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
