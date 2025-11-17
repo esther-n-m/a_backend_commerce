@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");  
 // const errorHandler = require("./middleware/errorMiddleware"); // Assuming this is defined/imported elsewhere
-
+const path = require('path'); // Node.js built-in module for working with file and directory paths
 
 const Product = require("./models/Product"); // Adjust path if needed
 const productsData = require('./products.json');

@@ -12,7 +12,7 @@ const {
     updateCartItemQuantity,
     removeItemFromCart,
     clearCart
-} = require("../controllers/cartController");
+} = require("../controller/cartController");
 
 // Use the correct middleware file
 const { protect } = require("../middleware/authMiddleware");
