@@ -1,9 +1,9 @@
 [
   {
     "name": "White Bow-Tie Pillow",
-    "price": 13.85,
+    "price": 1869.75,
     "description": "A set of two soft white pillows tied in a bow, featuring a subtle decorative pattern. Elegant and classic.",
-    "image": "bow-tie-pillow.jpg",
+    "image": "bowtie_pillow1.jpg",
     "category": "Pillow",
     "stockCount": 15,
     "options": {
@@ -13,9 +13,9 @@
   },
   {
     "name": "Red Monkey Fist Knot",
-    "price": 21.54,
+    "price": 2907.90,
     "description": "A large, tightly woven red nautical knot used as a decorative object or paperweight, adding a pop of color.",
-    "image": "monkey-fist.jpg",
+    "image": "knotless_pillow1.jpg",
     "category": "Decor",
     "stockCount": 8,
     "options": {
@@ -24,9 +24,9 @@
   },
   {
     "name": "Set of Round Decorative Pillows",
-    "price": 25.38,
+    "price": 3426.30,
     "description": "A set of round, textured pillows in varying colors (gray, yellow, black) for a modern, eclectic look.",
-    "image": "round-pillows.jpg",
+    "image": "several_round_pillows.jpg",
     "category": "Pillow",
     "stockCount": 20,
     "options": {
@@ -35,9 +35,9 @@
   },
   {
     "name": "Yellow Lumbar Pillow (Butterfly)",
-    "price": 13.85,
+    "price": 1869.75,
     "description": "A bright yellow lumbar pillow featuring a detailed butterfly design, perfect for back support and vibrant decor.",
-    "image": "butterfly-pillow.jpg",
+    "image": "lumbar_pillow1.jpg",
     "category": "Pillow",
     "stockCount": 12,
     "options": {
@@ -47,9 +47,9 @@
   },
   {
     "name": "Sausage and Round Set (Gold)",
-    "price": 17.69,
+    "price": 2388.15,
     "description": "A coordinated set of gold-toned decorative pillows (one cylindrical, one round) with textural patterns.",
-    "image": "gold-pillow-set.jpg",
+    "image": "sausage&round_pillow1.jpg",
     "category": "Pillow",
     "stockCount": 10,
     "options": {
@@ -58,9 +58,9 @@
   },
   {
     "name": "Orange Square Faith Pillow",
-    "price": 10.00,
+    "price": 1350.00,
     "description": "A square orange pillow with bold white text reading 'LIVING IN FAITH EVERYDAY'.",
-    "image": "faith-pillow.jpg",
+    "image": "square_pillow1.jpg",
     "category": "Pillow",
     "stockCount": 5,
     "options": {
@@ -69,9 +69,9 @@
   },
   {
     "name": "Succulent Scent Decor Candle",
-    "price": 10.00,
+    "price": 1350.00,
     "description": "A scented candle in a ceramic pot, featuring a green succulent plant theme for a natural, fresh look.",
-    "image": "succulent-candle.jpg",
+    "image": "IMG-20250930-WA0129.jpg",
     "category": "Candle",
     "stockCount": 18,
     "options": {
@@ -80,9 +80,9 @@
   },
   {
     "name": "Romantic Rose Vanilla Candle",
-    "price": 7.31,
+    "price": 986.85,
     "description": "A simple, white pillar candle with a sweet and delicate rose and vanilla aroma for a calming atmosphere.",
-    "image": "rose-vanilla-candle.jpg",
+    "image": "IMG-20250930-WA0130.jpg",
     "category": "Candle",
     "stockCount": 25,
     "options": {
@@ -91,9 +91,9 @@
   },
   {
     "name": "Purple & Blue Chevron Candle",
-    "price": 6.15,
+    "price": 830.25,
     "description": "A small glass jar candle with vibrant purple and blue chevron layers and a bright floral scent.",
-    "image": "chevron-candle.jpg",
+    "image": "IMG-20250930-WA0131.jpg",
     "category": "Candle",
     "stockCount": 30,
     "options": {
@@ -102,9 +102,9 @@
   },
   {
     "name": "Citrus & Lime Jar Candle",
-    "price": 10.00,
+    "price": 1350.00,
     "description": "A brown jar candle with a strong, zesty citrus and lime fragrance to refresh any kitchen or living area.",
-    "image": "citrus-jar-candle.jpg",
+    "image": "IMG-20250930-WA0133.jpg",
     "category": "Candle",
     "stockCount": 22,
     "options": {
@@ -113,9 +113,9 @@
   },
   {
     "name": "Heart-Shaped Gem Candle Set",
-    "price": 10.00,
+    "price": 1350.00,
     "description": "A set of small, colorful heart-shaped candles resembling gems, ideal for bath time or small decorative accents.",
-    "image": "gem-candle-set.jpg",
+    "image": "IMG-20250930-WA0134.jpg",
     "category": "Candle",
     "stockCount": 14,
     "options": {
@@ -125,9 +125,9 @@
   },
   {
     "name": "White & Purple Layered Candle",
-    "price": 7.31,
+    "price": 986.85,
     "description": "A white pillar candle with a bright purple outer layer, offering a strong, clean scent.",
-    "image": "purple-layered.jpg",
+    "image": "IMG-20250930-WA0135.jpg",
     "category": "Candle",
     "stockCount": 9,
     "options": {
