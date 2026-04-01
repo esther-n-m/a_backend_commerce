@@ -57,27 +57,19 @@ const FRONTEND_URLS = (
 
 // --- PRODUCTION-READY CORS CONFIGURATION (UPDATED) ---
 const corsOptions = {
-    // Dynamic origin check to support multiple domains
     origin: (origin, callback) => {
-        
-        // Check if the origin is explicitly allowed
-        const isAllowed = FRONTEND_URLS.includes(origin);
+        // Defines which frontends can talk to this backend
+        const allowedOrigins = [
+            "https://a-frontend-commerce.vercel.app",
+            "http://localhost:3000"
+        ];
 
-        if (isAllowed) {
-            //  Echo back the allowed origin string. 
-            // This is required when credentials: true is set.
-            callback(null, origin); 
-            
-        } else if (!origin) {
-            // Allow requests with no origin (e.g., Postman, server-to-server)
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
-            
         } else {
-            // Block all other origins
             callback(new Error('Not allowed by CORS'));
         }
     },
-    // CRITICAL: Allows cookies/credentials to be sent (needed for HttpOnly cookie)
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
